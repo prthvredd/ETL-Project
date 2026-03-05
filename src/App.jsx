@@ -1,19 +1,32 @@
-import { useState} from 'react' //makes sure it does not forgets anything
-function App(){
-  const [username, setUsername] = useState('') //useState is a hook that allows us to use state in a functional component. It returns an array with two elements: the current state and a function to update it. In this case, we are using destructuring to assign the current state to the variable username and the function to update it to setUsername.
-  const [password, setPassword] = useState('') //password = " " this of it like this
+import { useState } from 'react'
+
+function App() {
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+  const [loggedIn, setLoggedIn] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [selectedFile, setSelectedFile] = useState(null)
+  const [view, setView] = useState('home') // 'home' or 'browse'
+
   const handleLogin = () => {
-    if (username == 'admin' && password == '1234') {
-      alert("Login Successful!, Welcome " + username)
+    if (username === 'admin' && password === '1234') {
+      alert('Login Successful!, Welcome ' + username)
+      setLoggedIn(true)
+    } else {
+      alert('Login Failed!, Please Check Your Username and Password')
     }
-    else {
-      alert("Login Failed!, Please Check Your Username and Password")
-    }
-    console.log('Username:', username) //print the username to the vonsole anf the password to the console useful in backend
+    console.log('Username:', username)
     console.log('Password:', password)
   }
-  return (
-    <div className = "container">
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0]
+    setSelectedFile(file)
+    console.log('Selected file:', file)
+  }
+
+  const renderLogin = () => (
+    <div className="container">
       <h1>Project</h1>
       <input
         type="text"
@@ -31,5 +44,100 @@ function App(){
     </div>
   )
 
+  const renderHome = () => (
+    <div className="app">
+      <header>
+        <div
+          className="hamburger"
+          onClick={() => setMenuOpen((o) => !o)}
+          title="Menu"
+        >
+          ☰
+        </div>
+        {menuOpen && (
+          <nav className="menu">
+            <button
+              onClick={() => {
+                setMenuOpen(false)
+                setSelectedFile(null)
+                setView('home')
+              }}
+            >
+              Home
+            </button>
+            <button
+              onClick={() => {
+                setMenuOpen(false)
+                setView('browse')
+              }}
+            >
+              Browse File
+            </button>
+          </nav>
+        )}
+      </header>
+      <main>
+        <h2 className="fade-text">Welcome to the ETL CSV Viewer</h2>
+        <p>
+          This website is being built for taking a csv sheet into the website
+          and transforming it using a ETL pipeline and displaying the plots of
+          any given value side by side.
+        </p>
+        {selectedFile && <p>Chosen file: {selectedFile.name}</p>}
+      </main>
+    </div>
+  )
+
+  const renderBrowse = () => (
+    <div className="app browse">
+      <header className="fade-in-header">
+        <div
+          className="hamburger"
+          onClick={() => setMenuOpen((o) => !o)}
+          title="Menu"
+        >
+          ☰
+        </div>
+        {menuOpen && (
+          <nav className="menu">
+            <button
+              onClick={() => {
+                setMenuOpen(false)
+                setSelectedFile(null)
+                setView('home')
+              }}
+            >
+              Home
+            </button>
+          </nav>
+        )}
+      </header>
+      <main>
+        <h2>Browse Files</h2>
+        <div className="browse-layout">
+          <button onClick={() => document.getElementById('fileInput').click()}>
+            Select Files
+          </button>
+          <span
+            className="folder-icon"
+            onClick={() => document.getElementById('fileInput').click()}
+            title="Open folder"
+          >
+            📁
+          </span>
+          <input
+            id="fileInput"
+            type="file"
+            style={{ display: 'none' }}
+            onChange={handleFileChange}
+          />
+        </div>
+        {selectedFile && <p>Selected: {selectedFile.name}</p>}
+      </main>
+    </div>
+  )
+
+  return loggedIn ? (view === 'browse' ? renderBrowse() : renderHome()) : renderLogin()
 }
+
 export default App
